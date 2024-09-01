@@ -9,11 +9,10 @@ function Dashboard() {
   const [breakEndTime, setBreakEndTime] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const username = localStorage.getItem('username');
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const username = localStorage.getItem('username');
-
       if (!username) {
         navigate('/');
         return;
@@ -59,6 +58,7 @@ function Dashboard() {
         start_time: startTime,
         end_time: endTime,
         date: currentDate,
+        username: username,
       });
       setMessage(response.data.message);
     } catch (error) {
