@@ -33,6 +33,7 @@ function Dashboard() {
   const setCurrentTimePlusFifteen = (setTime) => {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 15); // Sumar 15 minutos
+  };
 
   // add 9 hours to the current Time
   const setCurrentTimePlusNine = (setTime) => {
