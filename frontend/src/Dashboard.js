@@ -33,12 +33,16 @@ function Dashboard() {
   const setCurrentTimePlusFifteen = (setTime) => {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 15); // Sumar 15 minutos
+    const formattedTime = now.toTimeString().slice(0, 5);
+    setTime(formattedTime); 
   };
 
   // add 9 hours to the current Time
   const setCurrentTimePlusNine = (setTime) => {
     const now = new Date();
     now.setHours(now.getHours() + 9); // Sumar 9 horas
+    const formattedTime = now.toTimeString().slice(0, 5);
+    setTime(formattedTime);
   };
   
   const getCurrentDate = () => {
