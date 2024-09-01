@@ -33,11 +33,13 @@ function Dashboard() {
   const setCurrentTimePlusFifteen = (setTime) => {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 15); // Sumar 15 minutos
-    const formattedTime = now.toTimeString().slice(0, 5);
-    setTime(formattedTime);
+
+  // add 9 hours to the current Time
+  const setCurrentTimePlusNine = (setTime) => {
+    const now = new Date();
+    now.setHours(now.getHours() + 9); // Sumar 9 horas
   };
   
-
   const getCurrentDate = () => {
     const now = new Date();
     return now.toISOString().split('T')[0]; // Returns the date in YYYY-MM-DD format
@@ -109,9 +111,9 @@ function Dashboard() {
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
-                    onClick={() => setCurrentTime(setEndTime)}
+                    onClick={() => setCurrentTimePlusNine(setEndTime)}
                   >
-                    Now
+                    +9 Hours
                   </button>
                 </div>
               </div>
