@@ -1,4 +1,4 @@
-from flask import jsonify, request, send_from_directory
+from flask import jsonify, request, send_from_directory, session
 from app import app, db
 from models import User, Shift
 import logging, os
@@ -117,6 +117,7 @@ def login():
     user = User.query.filter_by(username=username).first()
 
     if user and check_password_hash(user.password, password):
+        session['username'] = username
         return jsonify(message="Login successful"), 200
     else:
         return jsonify(message="Invalid username or password"), 401
@@ -148,7 +149,7 @@ def register():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    session.pop('user', None)
+    # session.pop('user', None)
     return jsonify(message="Logged out successfully"), 200
 
 
@@ -160,3 +161,23 @@ def serve(path):
     else:
         return send_from_directory('build', 'index.html')
 
+
+@app.route('/set_session', methods=['POST'])
+def set_session():
+    session['username'] = request.json.get('username')
+    return jsonify({"message": "Session set for user"}), 200
+
+
+@app.route('/check_session', methods=['GET'])
+def check_session():
+    username = session.get('username')
+    if username:
+        return jsonify({"message": f"Session active for user {username}"}), 200
+    else:
+        return jsonify({"message": "No active session"}), 404
+
+
+@app.route('/clear_session', methods=['POST'])
+def clear_session():
+    session.clear()
+    return jsonify({"message": "Session cleared"}), 200
