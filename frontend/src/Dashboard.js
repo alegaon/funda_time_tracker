@@ -9,12 +9,12 @@ function Dashboard() {
   const [breakEndTime, setBreakEndTime] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const usernameLocalStorage = localStorage.getItem('username');
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const username = localStorage.getItem('username');
 
-      if (!username) {
+      if (!usernameLocalStorage) {
         navigate('/');
         return;
       }
@@ -43,6 +43,14 @@ function Dashboard() {
         start_time: startTime,
         end_time: endTime,
         date: currentDate,
+        // issues n°1
+        // Add value to json payload to post request #5 
+        // On line #45 in Dashboard.js add
+        // 'username': username      
+        // Remember to get username from localStorage or Session.
+        username: usernameLocalStorage,
+        
+        
       });
       setMessage(response.data.message);
     } catch (error) {
