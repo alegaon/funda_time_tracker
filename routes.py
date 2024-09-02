@@ -1,10 +1,12 @@
 from flask import jsonify, request, send_from_directory, session
-from app import app, db
+from app import app, db, SECRET_KEY
 from models import User, Shift
-import logging, os
+import logging, os, jwt
 from datetime import datetime, timedelta
-from werkzeug.security import check_password_hash, generate_password_hash
+from jwt import ExpiredSignatureError, InvalidTokenError
+from flask_bcrypt import Bcrypt
 
+bcrypt = Bcrypt(app)
 
 @app.route('/user', methods=['POST'])
 def create_user():
@@ -13,7 +15,7 @@ def create_user():
     username = request.json.get('username')
     email = request.json.get('email')
     password = request.json.get('password')
-    password = generate_password_hash(password)
+    password = bcrypt.generate_password_hash(password)
     user = User(username=username, email=email, password=password)
     db.session.add(user)
     db.session.commit()
@@ -61,7 +63,6 @@ def create_shift():
     return jsonify({'message': 'Shift created successfully!'})
 
 
-# create a shift route to get all shifts for a user
 @app.route('/shift/<username>/', methods=['GET'])
 def get_shifts(username):
     shifts = Shift.query.filter_by(username=username).all()
@@ -111,41 +112,69 @@ def create_break():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
+
     username = data.get('username')
     password = data.get('password')
 
+    if not username or not password:
+        return jsonify({'message': 'Username and password are required'}), 400
+
     user = User.query.filter_by(username=username).first()
 
-    if user and check_password_hash(user.password, password):
+    if not user:
+        return jsonify({'message': 'Username and password are required'}), 400
+
+    if user.password and bcrypt.check_password_hash(user.password, password):
+        # Create JWT token
         session['username'] = username
-        return jsonify(message="Login successful"), 200
+        token = jwt.encode({
+            'sub': username,
+            'iat': datetime.utcnow(),
+            'exp': datetime.utcnow() + timedelta(hours=1)
+        }, SECRET_KEY, algorithm='HS256')
+
+        return jsonify({'token': token, "message": "Login successful"}), 200
     else:
-        return jsonify(message="Invalid username or password"), 401
+        return jsonify({'message': 'Invalid username or password'}), 401
 
 
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
+    data = request.json
     username = data.get('username')
     password = data.get('password')
     email = data.get('email')
 
-    users = {user.username: user for user in User.query.all()}
+    if not username or not password or not email:
+        return jsonify(message="Username, password, and email are required"), 400
 
-    if username in users:
-        return jsonify(message="User already exists"), 400
+    # Ensure username and email are unique
+    existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
+    if existing_user:
+        return jsonify(message="Username or email already exists"), 400
 
+    # Hash the password
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    # Create and save the new user
     user = User(
         username=username,
-        password=generate_password_hash(password),
+        password=hashed_password,
         email=email
     )
-
+    
     db.session.add(user)
     db.session.commit()
 
-    return jsonify(message="User created successfully!"), 201
+    # Optionally return a JWT token or user ID
+    # token = jwt.encode({
+    #     'sub': user.username,
+    #     'iat': datetime.datetime.utcnow(),
+    #     'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+    # }, SECRET_KEY, algorithm='HS256')
 
+    # return jsonify(message="User created successfully!", token=token), 201
+    return jsonify(message="User created successfully!"), 201
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -162,22 +191,21 @@ def serve(path):
         return send_from_directory('build', 'index.html')
 
 
-@app.route('/set_session', methods=['POST'])
-def set_session():
-    session['username'] = request.json.get('username')
-    return jsonify({"message": "Session set for user"}), 200
-
-
 @app.route('/check_session', methods=['GET'])
 def check_session():
-    username = session.get('username')
-    if username:
-        return jsonify({"message": f"Session active for user {username}"}), 200
-    else:
-        return jsonify({"message": "No active session"}), 404
+    auth_header = request.headers.get('Authorization')
 
+    if not auth_header:
+        return jsonify({'isLoggedIn': False, 'message': 'Token is missing'}), 401
 
-@app.route('/clear_session', methods=['POST'])
-def clear_session():
-    session.clear()
-    return jsonify({"message": "Session cleared"}), 200
+    token = auth_header.split(" ")[1]  # Extract token from 'Bearer <token>'
+
+    try:
+        # Decode the token
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        # If token is valid, return success response
+        return jsonify({'isLoggedIn': True}), 200
+    except ExpiredSignatureError:
+        return jsonify({'isLoggedIn': False, 'message': 'Token has expired'}), 401
+    except InvalidTokenError:
+        return jsonify({'isLoggedIn': False, 'message': 'Invalid token'}), 401
