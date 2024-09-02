@@ -8,14 +8,30 @@ function Dashboard() {
   const [breakStartTime, setBreakStartTime] = useState('');
   const [breakEndTime, setBreakEndTime] = useState('');
   const [message, setMessage] = useState('');
+  const [breakMessage, setBreakMessage] = useState('');
   const navigate = useNavigate();
-  const username = localStorage.getItem('username');
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      if (!username) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         navigate('/');
         return;
+      }
+
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/check_session', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.data.isLoggedIn) {
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+        navigate('/');
       }
     };
 
@@ -28,41 +44,66 @@ function Dashboard() {
     setTime(formattedTime);
   };
 
-  // add 15 minutes to the currente time
-  const setCurrentTimePlusFifteen = (setTime) => {
+  const setCurrentTimePlusMinutes = (setTime, minutes) => {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 15); // Sumar 15 minutos
-    const formattedTime = now.toTimeString().slice(0, 5);
-    setTime(formattedTime); 
-  };
-
-  // add 9 hours to the current Time
-  const setCurrentTimePlusNine = (setTime) => {
-    const now = new Date();
-    now.setHours(now.getHours() + 9); // Sumar 9 horas
+    now.setMinutes(now.getMinutes() + minutes);
     const formattedTime = now.toTimeString().slice(0, 5);
     setTime(formattedTime);
   };
-  
-  const getCurrentDate = () => {
+
+  const setCurrentTimePlusHours = (setTime, hours) => {
     const now = new Date();
-    return now.toISOString().split('T')[0]; // Returns the date in YYYY-MM-DD format
+    now.setHours(now.getHours() + hours);
+    const formattedTime = now.toTimeString().slice(0, 5);
+    setTime(formattedTime);
   };
 
-  const handleSubmit = async (event) => {
+  const getCurrentDate = () => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  };
+
+  const handleShiftSubmit = async (event) => {
     event.preventDefault();
     const currentDate = getCurrentDate();
+    const token = localStorage.getItem('token');
 
     try {
       const response = await axios.post('http://127.0.0.1:5000/shift', {
         start_time: startTime,
         end_time: endTime,
         date: currentDate,
-        username: username,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setMessage(response.data.message);
     } catch (error) {
+      console.error('Error creating shift:', error);
       setMessage('Failed to create shift.');
+    }
+  };
+
+  const handleBreakSubmit = async (event) => {
+    event.preventDefault();
+    const currentDate = getCurrentDate();
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/break', {
+        start_time: breakStartTime,
+        end_time: breakEndTime,
+        date: currentDate,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setBreakMessage(response.data.message);
+    } catch (error) {
+      console.error('Error creating break:', error);
+      setBreakMessage('Failed to create break.');
     }
   };
 
@@ -76,9 +117,10 @@ function Dashboard() {
           </p>
 
           {message && <p className="text-center text-success">{message}</p>}
+          {breakMessage && <p className="text-center text-success">{breakMessage}</p>}
 
           <h3>Create a Shift</h3>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleShiftSubmit}>
             <div className="form-group">
               <label>Start Time:</label>
               <div className="input-group">
@@ -116,7 +158,7 @@ function Dashboard() {
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
-                    onClick={() => setCurrentTimePlusNine(setEndTime)}
+                    onClick={() => setCurrentTimePlusHours(setEndTime, 9)}
                   >
                     +9 Hours
                   </button>
@@ -129,7 +171,7 @@ function Dashboard() {
           </form>
 
           <h3 className="mt-5">Create a Break</h3>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleBreakSubmit}>
             <div className="form-group">
               <label>Break Start Time:</label>
               <div className="input-group">
@@ -167,7 +209,7 @@ function Dashboard() {
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
-                    onClick={() => setCurrentTimePlusFifteen(setBreakEndTime)}
+                    onClick={() => setCurrentTimePlusMinutes(setBreakEndTime, 15)}
                   >
                     +15 Minutes
                   </button>
