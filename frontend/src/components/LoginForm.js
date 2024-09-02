@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
 
 function LoginForm() {
   const [username, setUsername] = useState('');
@@ -24,20 +22,19 @@ function LoginForm() {
 
       const data = await response.json();
 
-
       if (response.ok) {
         // Save the username in localStorage
         localStorage.setItem('username', username);
+        localStorage.setItem('token', data.token);
 
         // Show a success message
         setMessage('Login successful!');
 
-        // Optionally redirect or navigate to another page after login
-        // e.g., navigate to dashboard or home
+        // Redirect to dashboard or home
         navigate('/dashboard');
       } else {
         // Display an error message
-        setMessage(data.message);
+        setMessage(data.message || 'Login failed. Please try again.');
         // Show the registration link if login fails
         setShowRegisterLink(true);
       }
