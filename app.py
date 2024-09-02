@@ -9,10 +9,11 @@ app = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO)  # Set logging level to INFO or DEBUG
 
+SECRET_KEY = 'your_secret_key'  # Replace with a strong secret key
 # Configure the SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///example.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your_secret_key'  # Replace with a strong secret key
+app.config['SECRET_KEY'] = SECRET_KEY
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
