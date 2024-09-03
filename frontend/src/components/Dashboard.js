@@ -44,8 +44,16 @@ function Dashboard() {
     setTime(formattedTime);
   };
 
-  const setCurrentTimePlusMinutes = (setTime, minutes) => {
+
+  const setCurrentTimePlusMinutes = (setTime, currentEndTime, minutes) => {
     const now = new Date();
+    
+    if (currentEndTime) {
+      const [hours, mins] = currentEndTime.split(':');
+      now.setHours(parseInt(hours));
+      now.setMinutes(parseInt(mins));
+    }
+
     now.setMinutes(now.getMinutes() + minutes);
     const formattedTime = now.toTimeString().slice(0, 5);
     setTime(formattedTime);
@@ -67,12 +75,14 @@ function Dashboard() {
     event.preventDefault();
     const currentDate = getCurrentDate();
     const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
 
     try {
       const response = await axios.post('http://127.0.0.1:5000/shift', {
         start_time: startTime,
         end_time: endTime,
         date: currentDate,
+        username: username,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -209,7 +219,7 @@ function Dashboard() {
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
-                    onClick={() => setCurrentTimePlusMinutes(setBreakEndTime, 15)}
+                    onClick={() => setCurrentTimePlusMinutes(setBreakEndTime, breakEndTime, 15)}
                   >
                     +15 Minutes
                   </button>
