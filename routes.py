@@ -41,6 +41,8 @@ def create_shift():
     start_time_str = request.json.get('start_time')
     end_time_str = request.json.get('end_time')
 
+    user = User.query.filter_by(username=username).first()
+
     try:
         date = datetime.strptime(date_str, '%Y-%m-%d').date()
         start_time = datetime.strptime(start_time_str, '%H:%M').time()
@@ -50,7 +52,8 @@ def create_shift():
             {'message': 'Invalid date format, should be YYYY-MM-DD'}), 400
 
     shift = Shift(
-        username=username,
+        user_id=user.id,
+        user=user,
         date=date,
         start_time=start_time,
         end_time=end_time

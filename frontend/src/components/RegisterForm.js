@@ -24,7 +24,8 @@ function RegisterForm() {
         setMessage(response.data.message);
       }
     } catch (error) {
-      setMessage('Registration failed. Please try again.');
+      console.error('Error during registration:', error);
+      setMessage('An error occurred during registration. Please try again.');
     }
   };
 
