@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Navbar from './Navbar';
 
 function Dashboard() {
   const [startTime, setStartTime] = useState('');
@@ -109,6 +110,7 @@ function Dashboard() {
 
   return (
     <div className="container mt-5">
+      <Navbar />
       <div className="card">
         <div className="card-body">
           <h2 className="card-title text-center">Dashboard</h2>
