@@ -122,6 +122,8 @@ function Dashboard() {
         start_time: breakStartTime,
         end_time: breakEndTime,
         date: currentDate,
+        break_shift: 'yes',
+        username: user.username,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -132,7 +134,7 @@ function Dashboard() {
       console.error('Error creating break:', error);
       setBreakMessage('Failed to create break.');
     }
-
+    console.log(user);
   };
 
   return (
@@ -149,129 +151,142 @@ function Dashboard() {
           {breakMessage && <p className="text-center text-success">{breakMessage}</p>}
 
           <div className="row">
+
+            <div className="col-md-6">
+              <h3>Create a Shift</h3>
+              <form onSubmit={handleShiftSubmit}>
+                <div className="form-group">
+                  <label>Start Time:</label>
+                  <div className="input-group">
+                    <input
+                      type="time"
+                      className="form-control"
+                      name="start_time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      required
+                    />
+                    <div className="input-group-append">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => setCurrentTime(setStartTime)}
+                      >
+                        Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>End Time:</label>
+                  <div className="input-group">
+                    <input
+                      type="time"
+                      className="form-control"
+                      name="end_time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      required
+                    />
+                    <div className="input-group-append">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => setCurrentTimePlusHours(setEndTime, 9)}
+                      >
+                        +9 Hours
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" className="btn btn-primary w-100 mt-3">
+                  Create Shift
+                </button>
+              </form>
+            </div>
+
+
+            <div className="col-md-6">
+              <h3>Create a Break</h3>
+              <form onSubmit={handleBreakSubmit}>
+                <div className="form-group">
+                  <label>Break Start Time:</label>
+                  <div className="input-group">
+                    <input
+                      type="time"
+                      className="form-control"
+                      name="break_start"
+                      value={breakStartTime}
+                      onChange={(e) => setBreakStartTime(e.target.value)}
+                      required
+                    />
+                    <div className="input-group-append">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => setCurrentTime(setBreakStartTime)}
+                      >
+                        Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Break End Time:</label>
+                  <div className="input-group">
+                    <input
+                      type="time"
+                      className="form-control"
+                      name="break_end"
+                      value={breakEndTime}
+                      onChange={(e) => setBreakEndTime(e.target.value)}
+                      required
+                    />
+                    <div className="input-group-append">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => setCurrentTimePlusMinutes(setBreakEndTime, 15)}
+                      >
+                        +15 Minutes
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" className="btn btn-secondary w-100 mt-3">
+                  Create Break
+                </button>
+              </form>
+            </div>
+
+          </div>
+
+          <div className="row">
             <div className="col-md-6">
               <h3>Your Shifts</h3>
               <ul className="list-group">
-                {user && user.shifts.map((shift, index) => (
+                {user && user.shifts.map((shift, index) => 
+                  shift.break_shift === 'no' ? (
                   <li key={index} className="list-group-item">
                     {shift.date} - {shift.start_time} - {shift.end_time}
                   </li>
-                ))}
+                ) : null
+                )}
               </ul>
             </div>
             <div className="col-md-6">
               <h3>Your Breaks</h3>
               <ul className="list-group">
-                {user && user.shifts.map((breakItem, index) => (
-                  <li key={index} className="list-group-item">
-                    {breakItem.date} - {breakItem.start_time} - {breakItem.end_time}
-                  </li>
-                ))}
+                {user && user.shifts.map((breakItem, index) => 
+                  breakItem.break_shift === 'yes' ? (
+                    <li key={index} className="list-group-item">
+                      {breakItem.date} - {breakItem.start_time} - {breakItem.end_time}
+                    </li>
+                  ) : null
+                )}
               </ul>
             </div>
           </div>
-
-          <h3>Create a Shift</h3>
-          <form onSubmit={handleShiftSubmit}>
-            <div className="form-group">
-              <label>Start Time:</label>
-              <div className="input-group">
-                <input
-                  type="time"
-                  className="form-control"
-                  name="start_time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  required
-                />
-                <div className="input-group-append">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => setCurrentTime(setStartTime)}
-                  >
-                    Now
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="form-group">
-              <label>End Time:</label>
-              <div className="input-group">
-                <input
-                  type="time"
-                  className="form-control"
-                  name="end_time"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  required
-                />
-                <div className="input-group-append">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => setCurrentTimePlusHours(setEndTime, 9)}
-                  >
-                    +9 Hours
-                  </button>
-                </div>
-              </div>
-            </div>
-            <button type="submit" className="btn btn-primary w-100 mt-3">
-              Create Shift
-            </button>
-          </form>
-
-          <h3 className="mt-5">Create a Break</h3>
-          <form onSubmit={handleBreakSubmit}>
-            <div className="form-group">
-              <label>Break Start Time:</label>
-              <div className="input-group">
-                <input
-                  type="time"
-                  className="form-control"
-                  name="break_start"
-                  value={breakStartTime}
-                  onChange={(e) => setBreakStartTime(e.target.value)}
-                  required
-                />
-                <div className="input-group-append">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => setCurrentTime(setBreakStartTime)}
-                  >
-                    Now
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Break End Time:</label>
-              <div className="input-group">
-                <input
-                  type="time"
-                  className="form-control"
-                  name="break_end"
-                  value={breakEndTime}
-                  onChange={(e) => setBreakEndTime(e.target.value)}
-                  required
-                />
-                <div className="input-group-append">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => setCurrentTimePlusMinutes(setBreakEndTime, 15)}
-                  >
-                    +15 Minutes
-                  </button>
-                </div>
-              </div>
-            </div>
-            <button type="submit" className="btn btn-secondary w-100 mt-3">
-              Create Break
-            </button>
-          </form>
         </div>
       </div>
     </div>

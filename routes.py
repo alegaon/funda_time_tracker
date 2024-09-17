@@ -47,7 +47,8 @@ def get_user(username):
         'shifts': [{
             'date': shift.date.strftime('%Y-%m-%d'),
             'start_time': shift.start_time.strftime('%H:%M:%S'),
-            'end_time': shift.end_time.strftime('%H:%M:%S')
+            'end_time': shift.end_time.strftime('%H:%M:%S'),
+            'break_shift': shift.break_shift
         } for shift in shifts]
     })
 
