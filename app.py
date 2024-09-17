@@ -9,6 +9,7 @@ from commands.delete_flagged_users import delete_flagged_users
 from factory import create_app
 from flask_session import Session
 from models import db
+from flask_migrate import Migrate
 
 logging.basicConfig(level=logging.INFO)  # Set logging level to INFO or DEBUG
 
@@ -23,6 +24,8 @@ app.config['SESSION_USE_SIGNER'] = True
 session = Session(app)
 
 CORS(app)
+
+migrate = Migrate(app, db)
 
 # Import routes after the app and db are initialized
 with app.app_context():
