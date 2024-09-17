@@ -115,16 +115,20 @@ def create_break():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
+    
+    if not data:
+        return jsonify({'message': 'Request is not JSON'}), 400
 
     username = data.get('username')
     password = data.get('password')
 
-    if not username or not password:
-        return jsonify({'message': 'Username and password are required'}), 400
-
     user = User.query.filter_by(username=username).first()
 
     if not user:
+        return jsonify({'message': 'Username is not registered'}), 400
+    if not password:
+        return jsonify({'message': 'Password is required'}), 400
+    if not username or not password:
         return jsonify({'message': 'Username and password are required'}), 400
 
     if user.password and bcrypt.check_password_hash(user.password, password):
