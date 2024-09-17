@@ -199,3 +199,7 @@ cython_debug/
 package-lock.json
 flask_session/
 flask_session/*
+frontend/package-lock.json
+
+# ignore all package-lock.json files
+**/package-lock.json

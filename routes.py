@@ -37,11 +37,18 @@ def get_user(username):
         return jsonify({'message': 'Token has expired'}), 401
     
     user = User.query.filter_by(username=username).first()
+    shifts = Shift.query.filter_by(user_id=user.id).all()
     if not user:
         return jsonify({'message': 'User not found'}), 404
+    
     return jsonify({
         'username': user.username,
-        'email': user.email
+        'email': user.email,
+        'shifts': [{
+            'date': shift.date.strftime('%Y-%m-%d'),
+            'start_time': shift.start_time.strftime('%H:%M:%S'),
+            'end_time': shift.end_time.strftime('%H:%M:%S')
+        } for shift in shifts]
     })
 
 

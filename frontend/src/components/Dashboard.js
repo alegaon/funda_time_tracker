@@ -60,6 +60,7 @@ function Dashboard() {
   useEffect(() => {
     if (!user) {
       getUserData();
+      console.log(user);
     }
   }, [user]);
 
@@ -98,6 +99,7 @@ function Dashboard() {
         start_time: startTime,
         end_time: endTime,
         date: currentDate,
+        username: user.username,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -145,6 +147,29 @@ function Dashboard() {
 
           {message && <p className="text-center text-success">{message}</p>}
           {breakMessage && <p className="text-center text-success">{breakMessage}</p>}
+
+          <div className="row">
+            <div className="col-md-6">
+              <h3>Your Shifts</h3>
+              <ul className="list-group">
+                {user && user.shifts.map((shift, index) => (
+                  <li key={index} className="list-group-item">
+                    {shift.date} - {shift.start_time} - {shift.end_time}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="col-md-6">
+              <h3>Your Breaks</h3>
+              <ul className="list-group">
+                {user && user.shifts.map((breakItem, index) => (
+                  <li key={index} className="list-group-item">
+                    {breakItem.date} - {breakItem.start_time} - {breakItem.end_time}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
           <h3>Create a Shift</h3>
           <form onSubmit={handleShiftSubmit}>

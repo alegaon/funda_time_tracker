@@ -17,9 +17,12 @@ class Shift(db.Model):
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
-    break_shift = db.Column(db.Enum('yes', 'no'), nullable=True, default='no')
+    break_shift = db.Column(db.Enum('yes', 'no'), nullable=True, default='no') # TODO: use bool
+    # If binary yes/no, replace with Boolean
+    # break_shift = db.Column(db.Boolean, nullable=True, default=False)
 
     user = db.relationship('User', backref=db.backref('shifts', lazy=True))
 
     def __repr__(self):
-        return f'<Shift {self.user.username} {self.date} {self.start_time}-{self.end_time}>'
+        # Add a fallback in case user isn't loaded or is None
+        return f'<Shift {self.user.username if self.user else "Unknown"} {self.date} {self.start_time}-{self.end_time}>'
