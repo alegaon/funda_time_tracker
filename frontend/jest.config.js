@@ -7,5 +7,6 @@ module.exports = {
       '/node_modules/(?!(axios)/)',
     ],
     moduleFileExtensions: ['js', 'jsx'],
-  };
+    setupFilesAfterEnv: ['./setupTests.js'],
+};
   
