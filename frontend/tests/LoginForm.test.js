@@ -1,25 +1,36 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import LoginForm from '../src/LoginForm';
-import '@testing-library/jest-dom';
+import { MemoryRouter } from 'react-router-dom'; // Ensure routing context
+import fetchMock from 'jest-fetch-mock';
+import LoginForm from '../src/components/LoginForm'; // Adjust the path if needed
 
-test('fills out and submits the LoginForm with fake data', () => {
+beforeEach(() => {
+  fetchMock.resetMocks(); // Reset fetch mock before each test
+});
+
+test('handles failed login', async () => {
+  fetchMock.mockReject(new Error('API failure')); // Mock a failed fetch call
+
+  // Mock console.error to prevent it from logging the error in the test output
+  const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+  // Render LoginForm wrapped in MemoryRouter
   render(
-    <MemoryRouter initialEntries={['/login']}>
-      <Routes>
-        <Route path="/login" element={<LoginForm />} />
-      </Routes>
+    <MemoryRouter>
+      <LoginForm />
     </MemoryRouter>
   );
 
-  // Fill out the username and password fields
+  // Simulate filling out the form
   fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
   fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
 
-  // Submit the form
+  // Simulate form submission
   fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
-  // You can add your assertions here based on what the form does (e.g., API call, state change)
-  
+  // Check if the error message appears
+  expect(await screen.findByText(/an error occurred during login/i)).toBeInTheDocument();
+
+  // Restore console.error after the test
+  consoleErrorMock.mockRestore();
 });
