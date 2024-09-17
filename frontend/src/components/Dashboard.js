@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 
 function Dashboard() {
+  const [user, setUser] = useState(null);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [breakStartTime, setBreakStartTime] = useState('');
@@ -38,6 +39,29 @@ function Dashboard() {
 
     checkLoginStatus();
   }, [navigate]);
+
+  const getUserData = async () => {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    
+    try {
+      const response = await axios.get(`http://localhost:5000/user/${username}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUser(response.data);
+    } catch (error) {
+      console.error('Error getting user data:', error);
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!user) {
+      getUserData();
+    }
+  }, [user]);
 
   const setCurrentTime = (setTime) => {
     const now = new Date();
@@ -106,11 +130,12 @@ function Dashboard() {
       console.error('Error creating break:', error);
       setBreakMessage('Failed to create break.');
     }
+
   };
 
   return (
     <div className="container mt-5">
-      <Navbar />
+      <Navbar user={user}/>
       <div className="card">
         <div className="card-body">
           <h2 className="card-title text-center">Dashboard</h2>

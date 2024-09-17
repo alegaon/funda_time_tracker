@@ -26,10 +26,23 @@ def create_user():
 
 @app.route('/user/<username>/', methods=['GET'])
 def get_user(username):
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return jsonify({'message': 'Token is missing'}), 401
+    
+    token = auth_header.split(" ")[1]  # Extract token from auth_header
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+    except ExpiredSignatureError:
+        return jsonify({'message': 'Token has expired'}), 401
+    
     user = User.query.filter_by(username=username).first()
-    if user is None:
+    if not user:
         return jsonify({'message': 'User not found'}), 404
-    return jsonify({'username': user.username, 'email': user.email})
+    return jsonify({
+        'username': user.username,
+        'email': user.email
+    })
 
 
 @app.route('/users/user_id/<int:id>', methods=['DELETE'])

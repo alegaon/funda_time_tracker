@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
+from flask_cors import CORS
 
 db = SQLAlchemy()
 
@@ -13,6 +14,8 @@ def create_app():
     app.config['DEBUG'] = True
 
     db.init_app(app)
+
+    CORS(app)
 
     # Import and register your CLI commands here
     from commands.delete_flagged_users import delete_flagged_users
