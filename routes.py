@@ -31,6 +31,31 @@ def get_user(username):
     return jsonify({'username': user.username, 'email': user.email})
 
 
+@app.route('/users/user_id/<id:int>', methods=['DELETE'])
+def delete_user(id):
+    # Validate token
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return jsonify({'message': 'Token is missing'}), 401
+    
+    token = auth_header.split(" ")[1]  # Extract token from auth_header
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+    except ExpiredSignatureError:
+        return jsonify({'message': 'Token has expired'}), 401
+
+    user = User.query.filter_by(id=id).first()
+
+    # Check if user exists
+    if user is None:
+        return jsonify({'message': 'User not found'}), 404
+    
+    # Add user to list of flagged FOR_DELETION users
+    user.for_deletion = True
+    db.session.commit()
+    return jsonify({'message': 'User flagged for deletion'}), 200
+
+
 @app.route('/shift', methods=['POST'])
 def create_shift():
     if not request.is_json:
