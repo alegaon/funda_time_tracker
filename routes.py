@@ -1,5 +1,5 @@
 from flask import jsonify, request, send_from_directory, session
-from app import app, db, SECRET_KEY
+from app import app, db
 from models import User, Shift
 import logging, os, jwt
 from datetime import datetime, timedelta
@@ -7,6 +7,7 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt(app)
+SECRET_KEY = app.config['SECRET_KEY']
 
 @app.route('/user', methods=['POST'])
 def create_user():
@@ -31,7 +32,7 @@ def get_user(username):
     return jsonify({'username': user.username, 'email': user.email})
 
 
-@app.route('/users/user_id/<id:int>', methods=['DELETE'])
+@app.route('/users/user_id/<int:id>', methods=['DELETE'])
 def delete_user(id):
     # Validate token
     auth_header = request.headers.get('Authorization')
