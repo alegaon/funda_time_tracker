@@ -126,29 +126,45 @@ def get_shifts(username):
 # create a breakshift route to create breaks for a specific shift
 @app.route('/break', methods=['POST'])
 def create_break():
+    if auth_header := request.headers.get('Authorization'):
+        token = auth_header.split(" ")[1]
+    
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+    except ExpiredSignatureError:
+        return jsonify({'message': 'Token has expired'}), 401
+
     if not request.is_json:
         return jsonify({'message': 'Request is not JSON'}), 400
 
     username = request.json.get('username')
+    user = User.query.filter_by(username=username).first()
+
+    break_shift = request.json.get('break_shift')
 
     # measure break in minutes
     break_minutes = request.json.get('break_minutes')
+
+    break_minutes = break_minutes if break_minutes is not None else 0
 
     # automatically set break start time.
     break_start_time = datetime.now().time()
 
     # calculate break end time
-    break_end_time = (datetime.combine(
-        datetime.now(),
-        break_start_time) + timedelta(minutes=break_minutes)).time()
+    break_end_time = (
+        datetime.combine(
+            datetime.now(),
+            break_start_time) + timedelta(minutes=break_minutes)).time()
+
 
     # create breakshift
     break_shift = Shift(
-        username=username,
+        user_id=user.id,
+        user=user,
         date=datetime.now().date(),
         start_time=break_start_time,
         end_time=break_end_time,
-        break_shift='yes'
+        break_shift=break_shift
     )
 
     db.session.add(break_shift)
