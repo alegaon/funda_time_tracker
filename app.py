@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import logging
 from flask_cors import CORS
 from commands.delete_flagged_users import delete_flagged_users
