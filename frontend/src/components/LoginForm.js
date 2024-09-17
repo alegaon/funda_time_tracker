@@ -45,36 +45,45 @@ function LoginForm() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+<div className="container">
+  <div className="row justify-content-center">
+    <div className="col-md-6 col-lg-4">
+      <h2 className="text-center my-4">Login</h2>
       <form onSubmit={handleLogin}>
-        <div>
-          <label>Username:</label>
+        <div className="mb-3">
+          <label htmlFor="username" className="form-label">Username:</label>
           <input
+            id="username"
             type="text"
+            className="form-control"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
-        <div>
-          <label>Password:</label>
+        <div className="mb-3">
+          <label htmlFor="password" className="form-label">Password:</label>
           <input
+            id="password"
             type="password"
+            className="form-control"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" className="btn btn-primary w-100">Login</button>
       </form>
-      {message && <p>{message}</p>}
+      {message && <p className="text-danger mt-3">{message}</p>}
       {showRegisterLink && (
-        <p>
+        <p className="mt-3">
           Don't have an account? <Link to="/register">Register here</Link>.
         </p>
       )}
     </div>
+  </div>
+</div>
+
   );
 }
 
