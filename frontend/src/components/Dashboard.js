@@ -138,14 +138,10 @@ function Dashboard() {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container">
       <Navbar user={user}/>
       <div className="card">
         <div className="card-body">
-          <h2 className="card-title text-center">Dashboard</h2>
-          <p className="text-center text-muted">
-            Welcome to your dashboard! Here you can create shifts and breaks.
-          </p>
 
           {message && <p className="text-center text-success">{message}</p>}
           {breakMessage && <p className="text-center text-success">{breakMessage}</p>}
@@ -194,7 +190,7 @@ function Dashboard() {
                         className="btn btn-outline-secondary"
                         onClick={() => setCurrentTimePlusHours(setEndTime, 9)}
                       >
-                        +9 Hours
+                        +8 Hours
                       </button>
                     </div>
                   </div>
@@ -210,7 +206,7 @@ function Dashboard() {
               <h3>Create a Break</h3>
               <form onSubmit={handleBreakSubmit}>
                 <div className="form-group">
-                  <label>Break Start Time:</label>
+                  <label>Start Time:</label>
                   <div className="input-group">
                     <input
                       type="time"
@@ -232,7 +228,7 @@ function Dashboard() {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Break End Time:</label>
+                  <label>End Time:</label>
                   <div className="input-group">
                     <input
                       type="time"
@@ -262,7 +258,7 @@ function Dashboard() {
           </div>
 
           <div className="row">
-            <div className="col-md-6">
+            <div className="col-md-6 mt-4">
               <h3>Your Shifts</h3>
               <ul className="list-group">
                 {user && user.shifts.map((shift, index) => 
@@ -274,7 +270,7 @@ function Dashboard() {
                 )}
               </ul>
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 mt-4">
               <h3>Your Breaks</h3>
               <ul className="list-group">
                 {user && user.shifts.map((breakItem, index) => 
