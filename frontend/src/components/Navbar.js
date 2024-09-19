@@ -5,13 +5,26 @@ const Navbar = ({ user }) => {
     return <nav className="navbar navbar-expand-lg navbar-light bg-light">Loading...</nav>;
   }
 
-  // create a obj to store nav items
-  const navItems = [
-    { title: 'Home', link: '/' },
-    { title: 'Profile', link: '/profile' },
-    { title: 'Logout', link: '/logout' },
-  ];
+    // create a obj to store nav items
+    const navItems = [
+      { title: 'Home', link: '/' },
+      { title: 'Profile', link: '/profile' },
+      { title: 'Logout', link: '/logout' },
+    ];
 
+  // check url and build nav items
+  if (user.is_admin) {
+    navItems.push({ title: 'Admin', link: '/admin' });
+  }
+
+  if (user.is_staff) {
+    navItems.push({ title: 'Staff', link: '/staff' });
+  }
+
+  if (window.location.pathname === '/profile') {
+    navItems.push({ title: 'Edit Profile', link: '/edit' });
+    navItems.push({ title: 'Dashboard', link: '/dashboard' });
+  }
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
