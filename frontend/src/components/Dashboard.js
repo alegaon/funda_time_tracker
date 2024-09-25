@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
+import Footer from './Footer';
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -285,6 +286,7 @@ function Dashboard() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
