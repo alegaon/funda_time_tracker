@@ -279,3 +279,35 @@ def check_session():
         return jsonify({'isLoggedIn': False, 'message': 'Token has expired'}), 401
     except InvalidTokenError:
         return jsonify({'isLoggedIn': False, 'message': 'Invalid token'}), 401
+
+
+@app.route('/reports', methods=['GET'])
+def get_reports():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return jsonify({'message': 'Token is missing'}), 401
+
+    token = auth_header.split(" ")[1]
+
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+    except ExpiredSignatureError:
+        return jsonify({'message': 'Token has expired'}), 401
+    
+
+    # Get all shifts
+    shifts = Shift.query.all()
+    if not shifts:
+        return jsonify({'message': 'No shifts found'}), 404
+    
+    # Get all users
+    users = User.query.all()
+    if not users:
+        return jsonify({'message': 'No users found'}), 404
+
+    # Calculate the amount of total shifts taken by each user
+    user_shifts = {}
+    for user in users:
+        user_shifts[user.username] = len(Shift.query.filter_by(user_id=user.id).all())
+    
+    return jsonify(user_shifts)
