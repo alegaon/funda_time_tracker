@@ -12,5 +12,6 @@ Werkzeug==3.0.4
 Flask-Cors
 Flask-Session
 flask-bcrypt
+Flask-Migrate
 pyjwt
 python-dotenv

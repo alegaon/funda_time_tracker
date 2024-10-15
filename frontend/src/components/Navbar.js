@@ -10,6 +10,8 @@ const Navbar = ({ user }) => {
       { title: 'Home', link: '/' },
       { title: 'Profile', link: '/profile' },
       { title: 'Logout', link: '/logout' },
+      { title: 'Agenda', link: '/agenda' },
+      { title: 'Staff', link: '/staff' },
     ];
 
   // check url and build nav items
